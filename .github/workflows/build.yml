@@ -21,6 +21,11 @@ jobs:
       - name: Install PlatformIO
         run: pip install platformio
 
+      - name: Clean Build Only
+        run: |
+          rm -rf .pio/build
+          rm -rf .pio/libdeps
+
       - name: Build Firmware
         run: pio run -e general
 
