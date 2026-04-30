@@ -13,11 +13,7 @@ from os.path import basename, dirname, exists, isfile, join
 
 Import("env")  # type: ignore
 
-try:
-    FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduinoespressif32-libs")
-except:
-    FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduinoespressif32")
-
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduinoespressif32")
 board_mcu = env.BoardConfig()
 mcu = board_mcu.get("build.mcu", "")
 patchflag_path = join(FRAMEWORK_DIR, mcu, "lib", ".patched")
