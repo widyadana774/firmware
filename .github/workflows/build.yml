@@ -23,6 +23,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install platformio
+
+        - name: Dump merged config
+          run: |
+          pio project config
     
     - name: Build Firmware
       run: |
