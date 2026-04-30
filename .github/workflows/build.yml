@@ -27,7 +27,7 @@ jobs:
           rm -rf .pio/libdeps
 
       - name: Build Firmware
-        run: pio run -e general
+        run: pio run -e esp32-s3-devkitc-1-psram
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
