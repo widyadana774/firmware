@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bruce-firmware-s3
-          path: .pio/build/general/firmware.bin
+          path: .pio/build/esp32-s3-devkitc-1-psram/firmware.bin
