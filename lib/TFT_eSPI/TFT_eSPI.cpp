@@ -76,6 +76,7 @@ SemaphoreHandle_t tftMutex = NULL;
 ** Description:             Start SPI transaction for writes and select TFT
 ***************************************************************************************/
 inline void TFT_eSPI::begin_tft_write(void){
+  if (_booted) return;
   if (tftMutex) xSemaphoreTakeRecursive(tftMutex, portMAX_DELAY);
   if (locked) {
     locked = false; // Flag to show SPI access now unlocked
