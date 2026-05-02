@@ -7,6 +7,12 @@
 #ifndef _TFT_eSPI_ESP32H_
 #define _TFT_eSPI_ESP32H_
 
+// Arduino 3.x GPIO compatibility
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  #include "soc/gpio_struct.h"
+  #define GPIO (*((volatile gpio_dev_t*)GPIO_OUT_REG))
+#endif
+
 // Processor ID reported by getSetup()
 #define PROCESSOR_ID 0x32
 
