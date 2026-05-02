@@ -686,6 +686,7 @@ void TFT_eSPI::init(uint8_t tc)
 #endif
 
     _booted = false;
+	_spi_ready = true;
     end_tft_write();
   } // end of: if just _booted
 
