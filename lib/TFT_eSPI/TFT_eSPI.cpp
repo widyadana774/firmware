@@ -686,8 +686,8 @@ void TFT_eSPI::init(uint8_t tc)
 #endif
 
     _booted = false;
-	_spi_ready = true;
     end_tft_write();
+	_spi_ready = true;
   } // end of: if just _booted
 
   // Toggle RST low to reset
