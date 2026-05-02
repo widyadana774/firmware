@@ -6,12 +6,14 @@
 
 #ifndef _TFT_eSPI_ESP32H_
 #define _TFT_eSPI_ESP32H_
-
-// Arduino 3.x GPIO compatibility
+// Arduino 3.x GPIO compatibility - direct hardware register access
+#include "soc/gpio_struct.h"
 #if ESP_ARDUINO_VERSION_MAJOR >= 3
-  #include "soc/gpio_struct.h"
-  #define GPIO (*((volatile gpio_dev_t*)GPIO_OUT_REG))
+  #undef GPIO
+  #define GPIO (*(volatile gpio_dev_t*)0x60004000)
 #endif
+
+
 
 // Processor ID reported by getSetup()
 #define PROCESSOR_ID 0x32
@@ -616,3 +618,4 @@ SPI3_HOST = 2
 #define DAT8TO32(P) ( (uint32_t)P[0]<<8 | P[1] | P[2]<<24 | P[3]<<16 )
 
 #endif // Header end
+
