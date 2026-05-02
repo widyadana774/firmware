@@ -19,7 +19,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install PlatformIO
-        run: pip install platformio
+         run: |
+          pip install --upgrade pip
+          pip install platformio
 
       - name: Clean Build Only
         run: |
