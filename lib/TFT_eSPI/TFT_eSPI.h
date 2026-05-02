@@ -992,7 +992,8 @@ protected:
     bool textwrapX, textwrapY; // If set, 'wrap' text at right and optionally bottom edge of display
     bool _swapBytes;           // Swap the byte order for TFT pushImage()
 
-    bool _booted; // init() or begin() has already run once
+    bool _booted;  // init() or begin() has already run once
+    bool _spi_ready = false;
 
     // User sketch manages these via set/getAttribute()
     bool _cp437;        // If set, use correct CP437 charset (default is OFF)
