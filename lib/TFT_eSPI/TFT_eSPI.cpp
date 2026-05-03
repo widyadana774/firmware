@@ -92,12 +92,10 @@ inline void TFT_eSPI::begin_tft_write(void){
 // Non-inlined version to permit override
 void TFT_eSPI::begin_nin_write(void){
   if (locked) {
-    locked = false; // Flag to show SPI access now unlocked
-#if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS) && !defined(TFT_PARALLEL_8_BIT) && !defined(RP2040_PIO_INTERFACE)
+    locked = false;
     spi.beginTransaction(SPISettings(SPI_FREQUENCY, MSBFIRST, TFT_SPI_MODE));
-#endif
-    CS_L;
-    SET_BUS_WRITE_MODE;  // Some processors (e.g. ESP32) allow recycling the tx buffer when rx is not used
+    digitalWrite(TFT_CS, LOW);  // ganti CS_L
+    // SET_BUS_WRITE_MODE;  ← comment ini
   }
 }
 
@@ -106,18 +104,16 @@ void TFT_eSPI::begin_nin_write(void){
 ** Description:             End transaction for write and deselect TFT
 ***************************************************************************************/
 inline void TFT_eSPI::end_tft_write(void){
-  if(!inTransaction) {      // Flag to stop ending transaction during multiple graphics calls
-    if (!locked) {          // Locked when beginTransaction has been called
-      locked = true;        // Flag to show SPI access now locked
-      SPI_BUSY_CHECK;       // Check send complete and clean out unused rx data
-      CS_H;
-      SET_BUS_READ_MODE;    // In case bus has been configured for tx only
-#if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS) && !defined(TFT_PARALLEL_8_BIT) && !defined(RP2040_PIO_INTERFACE)
+  if(!inTransaction) {
+    if (!locked) {
+      locked = true;
+      // SPI_BUSY_CHECK;     ← comment ini — pakai *_spi_cmd register
+      digitalWrite(TFT_CS, HIGH);  // ganti CS_H
+      // SET_BUS_READ_MODE;  ← comment ini — pakai *_spi_user register
       spi.endTransaction();
-#endif
     }
   }
-  xSemaphoreGiveRecursive(tftMutex);
+  if (tftMutex) xSemaphoreGiveRecursive(tftMutex);  // guard null check!
 }
 
 // Non-inlined version to permit override
@@ -1067,19 +1063,13 @@ void TFT_eSPI::writeRegister16(uint16_t c, uint16_t d)
 ** Function name:           writedata
 ** Description:             Send a 8-bit data value to the TFT
 ***************************************************************************************/
-void TFT_eSPI::writedata(uint8_t d)
-{
+void TFT_eSPI::writedata(uint8_t d) {
   begin_tft_write();
-
-  DC_D;        // Play safe, but should already be in data mode
-
-  tft_Write_8(d);
-
-  CS_L;        // Allow more hold time for low VDI rail
-
+  digitalWrite(TFT_DC, HIGH);
+  spi.transfer(d);
+  digitalWrite(TFT_CS, LOW);  // atau comment aja CS_L ini
   end_tft_write();
 }
-
 
 /***************************************************************************************
 ** Function name:           readcommand8
