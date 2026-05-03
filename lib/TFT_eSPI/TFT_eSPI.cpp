@@ -1008,11 +1008,11 @@ void TFT_eSPI::writecommand(uint8_t c)
 {
   begin_tft_write();
 
-  DC_C;
+  digitalWrite(TFT_DC, LOW);
 
   tft_Write_8(c);
 
-  DC_D;
+  digitalWrite(TFT_DC, HIGH);
 
   end_tft_write();
 }
