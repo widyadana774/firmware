@@ -1010,7 +1010,7 @@ void TFT_eSPI::writecommand(uint8_t c)
 
   digitalWrite(TFT_DC, LOW);
 
-  tft_Write_8(c);
+  spi.transfer(c);
 
   digitalWrite(TFT_DC, HIGH);
 
