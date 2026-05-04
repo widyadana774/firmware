@@ -3775,25 +3775,25 @@ void TFT_eSPI::drawPixel(int32_t x, int32_t y, uint32_t color)
   #else
     // No need to send x if it has not changed (speeds things up)
     if (addr_col != x) {
-      DC_C; tft_Write_8(TFT_CASET);
-      DC_D; tft_Write_32D(x);
+      digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_CASET);
+      digitalWrite(TFT_DC, HIGH); spi.transfer(x>>8); spi.transfer(x&0xFF); spi.transfer(x>>8); spi.transfer(x&0xFF);
       addr_col = x;
     }
 
     // No need to send y if it has not changed (speeds things up)
     if (addr_row != y) {
-      DC_C; tft_Write_8(TFT_PASET);
-      DC_D; tft_Write_32D(y);
+      digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_PASET);
+      digitalWrite(TFT_DC, HIGH); spi.transfer(y>>8); spi.transfer(y&0xFF); spi.transfer(y>>8); spi.transfer(y&0xFF);
       addr_row = y;
     }
   #endif
 
-  DC_C; tft_Write_8(TFT_RAMWR);
+  digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_RAMWR);
 
   #if defined(TFT_PARALLEL_8_BIT) || defined(TFT_PARALLEL_16_BIT) || !defined(ESP32)
     DC_D; tft_Write_16(color);
   #else
-    DC_D; tft_Write_16N(color);
+        digitalWrite(TFT_DC, HIGH); spi.transfer(color>>8); spi.transfer(color&0xFF);
   #endif
 #endif
 
@@ -3808,8 +3808,8 @@ void TFT_eSPI::pushColor(uint16_t color)
 {
   begin_tft_write();
 
-  SPI_BUSY_CHECK;
-  tft_Write_16N(color);
+  spi.transfer(color>>8);
+  spi.transfer(color&0xFF);
 
   end_tft_write();
 }
