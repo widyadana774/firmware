@@ -121,9 +121,9 @@ inline void TFT_eSPI::end_nin_write(void){
   if(!inTransaction) {      // Flag to stop ending transaction during multiple graphics calls
     if (!locked) {          // Locked when beginTransaction has been called
       locked = true;        // Flag to show SPI access now locked
-      SPI_BUSY_CHECK;       // Check send complete and clean out unused rx data
-      CS_H;
-      SET_BUS_READ_MODE;    // In case SPI has been configured for tx only
+      // SPI_BUSY_CHECK;       // Check send complete and clean out unused rx data
+      digitalWrite(TFT_CS, HIGH);
+      // SET_BUS_READ_MODE;    // In case SPI has been configured for tx only
 #if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS) && !defined(TFT_PARALLEL_8_BIT) && !defined(RP2040_PIO_INTERFACE)
       spi.endTransaction();
 #endif
@@ -1067,7 +1067,7 @@ void TFT_eSPI::writedata(uint8_t d) {
   begin_tft_write();
   digitalWrite(TFT_DC, HIGH);
   spi.transfer(d);
-  digitalWrite(TFT_CS, LOW);  // atau comment aja CS_L ini
+  // digitalWrite(TFT_CS, LOW);  // atau comment aja CS_L ini
   end_tft_write();
 }
 
@@ -3496,13 +3496,15 @@ void TFT_eSPI::setWindow(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
       TX_FIFO = TFT_RAMWR;
     #endif
   #else
-    SPI_BUSY_CHECK;
-    DC_C; tft_Write_8(TFT_CASET);
-    DC_D; tft_Write_32C(x0, x1);
-    DC_C; tft_Write_8(TFT_PASET);
-    DC_D; tft_Write_32C(y0, y1);
-    DC_C; tft_Write_8(TFT_RAMWR);
-    DC_D;
+    // ESP32-S3 Arduino 3.x safe - no hardware register access
+    digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_CASET);
+    digitalWrite(TFT_DC, HIGH); spi.transfer(x0 >> 8); spi.transfer(x0 & 0xFF);
+                                spi.transfer(x1 >> 8); spi.transfer(x1 & 0xFF);
+    digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_PASET);
+    digitalWrite(TFT_DC, HIGH); spi.transfer(y0 >> 8); spi.transfer(y0 & 0xFF);
+                                spi.transfer(y1 >> 8); spi.transfer(y1 & 0xFF);
+    digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_RAMWR);
+    digitalWrite(TFT_DC, HIGH);
   #endif // RP2040 SPI
 #endif
   //end_tft_write(); // Must be called after setWindow
