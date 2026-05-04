@@ -236,46 +236,11 @@ void TFT_eSPI::pushBlock(uint16_t color, uint32_t len){
 //*/
 //*
 void TFT_eSPI::pushBlock(uint16_t color, uint32_t len){
-
-  volatile uint32_t* spi_w = _spi_w;
-  uint32_t color32 = (color<<8 | color >>8)<<16 | (color<<8 | color >>8);
-  uint32_t i = 0;
-  uint32_t rem = len & 0x1F;
-  len =  len - rem;
-
-  // Start with partial buffer pixels
-  if (rem)
-  {
-    while (*_spi_cmd&SPI_USR);
-    for (i=0; i < rem; i+=2) *spi_w++ = color32;
-    *_spi_mosi_dlen = (rem << 4) - 1;
-#if CONFIG_IDF_TARGET_ESP32S3
-    *_spi_cmd = SPI_UPDATE;
-    while (*_spi_cmd & SPI_UPDATE);
-#endif
-    *_spi_cmd = SPI_USR;
-    if (!len) return; //{while (*_spi_cmd&SPI_USR); return; }
-    i = i>>1; while(i++<16) *spi_w++ = color32;
+  uint8_t hi = color >> 8, lo = color & 0xFF;
+  while (len--) {
+    spi.transfer(hi);
+    spi.transfer(lo);
   }
-
-  while (*_spi_cmd&SPI_USR);
-  if (!rem) while (i++<16) *spi_w++ = color32;
-  *_spi_mosi_dlen =  511;
-
-  // End with full buffer to maximise useful time for downstream code
-  while(len)
-  {
-    while (*_spi_cmd&SPI_USR);
-#if CONFIG_IDF_TARGET_ESP32S3
-    *_spi_cmd = SPI_UPDATE;
-    while (*_spi_cmd & SPI_UPDATE);
-#endif
-    *_spi_cmd = SPI_USR;
-    len -= 32;
-  }
-
-  // Do not wait here
-  //while (*_spi_cmd&SPI_USR);
 }
 //*/
 /***************************************************************************************
@@ -372,57 +337,20 @@ void TFT_eSPI::pushSwapBytePixels(const void* data_in, uint32_t len){
 ** Description:             Write a sequence of pixels
 ***************************************************************************************/
 void TFT_eSPI::pushPixels(const void* data_in, uint32_t len){
-
-  if(_swapBytes) {
-    pushSwapBytePixels(data_in, len);
-    return;
-  }
-
-  uint32_t *data = (uint32_t*)data_in;
-
-  if (len > 31)
-  {
-    WRITE_PERI_REG(SPI_MOSI_DLEN_REG(SPI_PORT), 511);
-    while(len>31)
-    {
-      while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
-      WRITE_PERI_REG(SPI_W0_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W1_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W2_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W3_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W4_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W5_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W6_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W7_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W8_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W9_REG(SPI_PORT),  *data++);
-      WRITE_PERI_REG(SPI_W10_REG(SPI_PORT), *data++);
-      WRITE_PERI_REG(SPI_W11_REG(SPI_PORT), *data++);
-      WRITE_PERI_REG(SPI_W12_REG(SPI_PORT), *data++);
-      WRITE_PERI_REG(SPI_W13_REG(SPI_PORT), *data++);
-      WRITE_PERI_REG(SPI_W14_REG(SPI_PORT), *data++);
-      WRITE_PERI_REG(SPI_W15_REG(SPI_PORT), *data++);
-#if CONFIG_IDF_TARGET_ESP32S3
-      SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_UPDATE);
-      while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_UPDATE);
-#endif
-      SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_USR);
-      len -= 32;
+  const uint16_t* data = (const uint16_t*)data_in;
+  if (_swapBytes) {
+    while (len--) {
+      uint16_t px = *data++;
+      spi.transfer(px & 0xFF);
+      spi.transfer(px >> 8);
+    }
+  } else {
+    while (len--) {
+      uint16_t px = *data++;
+      spi.transfer(px >> 8);
+      spi.transfer(px & 0xFF);
     }
   }
-
-  if (len)
-  {
-    while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
-    WRITE_PERI_REG(SPI_MOSI_DLEN_REG(SPI_PORT), (len << 4) - 1);
-    for (uint32_t i=0; i <= (len<<1); i+=4) WRITE_PERI_REG((SPI_W0_REG(SPI_PORT) + i), *data++);
-#if CONFIG_IDF_TARGET_ESP32S3
-      SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_UPDATE);
-      while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_UPDATE);
-#endif
-    SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_USR);
-  }
-  while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
