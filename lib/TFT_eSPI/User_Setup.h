@@ -15,7 +15,7 @@
 #define TFT_HEIGHT 320
 
 // Warna (ganti ke TFT_RGB kalau kebalik)
-#define TFT_RGB_ORDER TFT_BGR
+#define TFT_RGB_ORDER TFT_RGB
 
 // SPI Speed (sinkron sama general.ini)
 #define SPI_FREQUENCY       27000000
