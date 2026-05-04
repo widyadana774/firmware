@@ -3233,11 +3233,11 @@ void TFT_eSPI::drawChar(int32_t x, int32_t y, uint16_t c, uint32_t color, uint32
 
     for (int8_t j = 0; j < 8; j++) {
       for (int8_t k = 0; k < 5; k++ ) {
-        if (column[k] & mask) {tft_Write_16(color);}
-        else {tft_Write_16(bg);}
+        if (column[k] & mask) {spi.transfer(color>>8); spi.transfer(color&0xFF);}
+        else {spi.transfer(bg>>8); spi.transfer(bg&0xFF);}
       }
       mask <<= 1;
-      tft_Write_16(bg);
+      spi.transfer(bg>>8); spi.transfer(bg&0xFF);
     }
 
     end_tft_write();
