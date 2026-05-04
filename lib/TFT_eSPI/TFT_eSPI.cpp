@@ -3594,206 +3594,37 @@ void TFT_eSPI::readAddrWindow(int32_t xs, int32_t ys, int32_t w, int32_t h)
 ** Function name:           drawPixel
 ** Description:             push a single pixel at an arbitrary position
 ***************************************************************************************/
+
 void TFT_eSPI::drawPixel(int32_t x, int32_t y, uint32_t color)
 {
   if (_vpOoB) return;
-
-  x+= _xDatum;
-  y+= _yDatum;
-
-  // Range checking
-  if ((x < _vpX) || (y < _vpY) ||(x >= _vpW) || (y >= _vpH)) return;
-
-#ifdef CGRAM_OFFSET
-  x+=colstart;
-  y+=rowstart;
-#endif
-
-#if (defined (MULTI_TFT_SUPPORT) || defined (GC9A01_DRIVER)) && !defined (ILI9225_DRIVER)
-  addr_row = 0xFFFF;
-  addr_col = 0xFFFF;
-#endif
+  x += _xDatum;
+  y += _yDatum;
+  if ((x < _vpX)||(y < _vpY)||(x >= _vpW)||(y >= _vpH)) return;
 
   begin_tft_write();
 
-#if defined (ILI9225_DRIVER)
-  if (rotation & 0x01) { transpose(x, y); }
-  SPI_BUSY_CHECK;
-
-  // Set window to full screen to optimise sequential pixel rendering
-  if (addr_row != 0x9225) {
-    addr_row = 0x9225; // addr_row used for flag
-    DC_C; tft_Write_8(TFT_CASET1);
-    DC_D; tft_Write_16(0);
-    DC_C; tft_Write_8(TFT_CASET2);
-    DC_D; tft_Write_16(175);
-
-    DC_C; tft_Write_8(TFT_PASET1);
-    DC_D; tft_Write_16(0);
-    DC_C; tft_Write_8(TFT_PASET2);
-    DC_D; tft_Write_16(219);
+  if (addr_col != x) {
+    digitalWrite(TFT_DC, LOW);
+    spi.transfer(TFT_CASET);
+    digitalWrite(TFT_DC, HIGH);
+    spi.transfer(x >> 8); spi.transfer(x & 0xFF);
+    spi.transfer(x >> 8); spi.transfer(x & 0xFF);
+    addr_col = x;
   }
-
-  // Define pixel coordinate
-  DC_C; tft_Write_8(TFT_RAM_ADDR1);
-  DC_D; tft_Write_16(x);
-  DC_C; tft_Write_8(TFT_RAM_ADDR2);
-  DC_D; tft_Write_16(y);
-
-  // write to RAM
-  DC_C; tft_Write_8(TFT_RAMWR);
-  #if defined(TFT_PARALLEL_8_BIT) || defined(TFT_PARALLEL_16_BIT) || !defined(ESP32)
-    DC_D; tft_Write_16(color);
-  #else
-    DC_D; tft_Write_16N(color);
-  #endif
-
-// Temporary solution is to include the RP2040 optimised code here
-#elif (defined (ARDUINO_ARCH_RP2040) || defined (ARDUINO_ARCH_MBED)) && !defined (SSD1351_DRIVER)
-
-  #if defined (SSD1963_DRIVER)
-    if ((rotation & 0x1) == 0) { transpose(x, y); }
-  #endif
-
-  #if !defined(RP2040_PIO_INTERFACE)
-    while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-
-    #if  defined (RPI_DISPLAY_TYPE) // RPi TFT type always needs 16-bit transfers
-      hw_write_masked(&spi_get_hw(SPI_X)->cr0, (16 - 1) << SPI_SSPCR0_DSS_LSB, SPI_SSPCR0_DSS_BITS);
-    #else
-      hw_write_masked(&spi_get_hw(SPI_X)->cr0, (8 - 1) << SPI_SSPCR0_DSS_LSB, SPI_SSPCR0_DSS_BITS);
-    #endif
-
-    if (addr_col != x) {
-      DC_C;
-      spi_get_hw(SPI_X)->dr = (uint32_t)TFT_CASET;
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS){};
-      DC_D;
-      spi_get_hw(SPI_X)->dr = (uint32_t)x>>8;
-      spi_get_hw(SPI_X)->dr = (uint32_t)x;
-      spi_get_hw(SPI_X)->dr = (uint32_t)x>>8;
-      spi_get_hw(SPI_X)->dr = (uint32_t)x;
-      addr_col = x;
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-    }
-
-    if (addr_row != y) {
-      DC_C;
-      spi_get_hw(SPI_X)->dr = (uint32_t)TFT_PASET;
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-      DC_D;
-      spi_get_hw(SPI_X)->dr = (uint32_t)y>>8;
-      spi_get_hw(SPI_X)->dr = (uint32_t)y;
-      spi_get_hw(SPI_X)->dr = (uint32_t)y>>8;
-      spi_get_hw(SPI_X)->dr = (uint32_t)y;
-      addr_row = y;
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-    }
-
-    DC_C;
-    spi_get_hw(SPI_X)->dr = (uint32_t)TFT_RAMWR;
-
-    #if defined (SPI_18BIT_DRIVER) // SPI 18-bit colour
-      uint8_t r = (color & 0xF800)>>8;
-      uint8_t g = (color & 0x07E0)>>3;
-      uint8_t b = (color & 0x001F)<<3;
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-      DC_D;
-      tft_Write_8N(r); tft_Write_8N(g); tft_Write_8N(b);
-    #else
-      while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-      DC_D;
-      #if  defined (RPI_DISPLAY_TYPE) // RPi TFT type always needs 16-bit transfers
-        spi_get_hw(SPI_X)->dr = (uint32_t)color;
-      #else
-        spi_get_hw(SPI_X)->dr = (uint32_t)color>>8;
-        spi_get_hw(SPI_X)->dr = (uint32_t)color;
-      #endif
-    #endif
-    while (spi_get_hw(SPI_X)->sr & SPI_SSPSR_BSY_BITS) {};
-  #elif defined (RM68120_DRIVER)
-    if (addr_col != x) {
-      DC_C; tft_Write_16(TFT_CASET+0); DC_D; tft_Write_16(x >> 8);
-      DC_C; tft_Write_16(TFT_CASET+1); DC_D; tft_Write_16(x & 0xFF);
-      DC_C; tft_Write_16(TFT_CASET+2); DC_D; tft_Write_16(x >> 8);
-      DC_C; tft_Write_16(TFT_CASET+3); DC_D; tft_Write_16(x & 0xFF);
-      addr_col = x;
-    }
-    if (addr_row != y) {
-      DC_C; tft_Write_16(TFT_PASET+0); DC_D; tft_Write_16(y >> 8);
-      DC_C; tft_Write_16(TFT_PASET+1); DC_D; tft_Write_16(y & 0xFF);
-      DC_C; tft_Write_16(TFT_PASET+2); DC_D; tft_Write_16(y >> 8);
-      DC_C; tft_Write_16(TFT_PASET+3); DC_D; tft_Write_16(y & 0xFF);
-      addr_row = y;
-    }
-    DC_C; tft_Write_16(TFT_RAMWR); DC_D;
-
-    TX_FIFO = color;
-  #else
-    // This is for the RP2040 and PIO interface (SPI or parallel)
-    WAIT_FOR_STALL;
-    tft_pio->sm[pio_sm].instr = pio_instr_addr;
-    TX_FIFO = TFT_CASET;
-    TX_FIFO = (x<<16) | x;
-    TX_FIFO = TFT_PASET;
-    TX_FIFO = (y<<16) | y;
-    TX_FIFO = TFT_RAMWR;
-    //DC set high by PIO
-    #if  defined (SPI_18BIT_DRIVER) || (defined (SSD1963_DRIVER) && defined (TFT_PARALLEL_8_BIT))
-      TX_FIFO = ((color & 0xF800)<<8) | ((color & 0x07E0)<<5) | ((color & 0x001F)<<3);
-    #else
-      TX_FIFO = color;
-    #endif
-
-  #endif
-
-#else
-
-  #if defined (SSD1963_DRIVER)
-    if ((rotation & 0x1) == 0) { transpose(x, y); }
-  #endif
-
-    SPI_BUSY_CHECK;
-
-  #if defined (SSD1351_DRIVER)
-    if (rotation & 0x1) { transpose(x, y); }
-    // No need to send x if it has not changed (speeds things up)
-    if (addr_col != x) {
-      DC_C; tft_Write_8(TFT_CASET);
-      DC_D; tft_Write_16(x | (x << 8));
-      addr_col = x;
-    }
-
-    // No need to send y if it has not changed (speeds things up)
-    if (addr_row != y) {
-      DC_C; tft_Write_8(TFT_PASET);
-      DC_D; tft_Write_16(y | (y << 8));
-      addr_row = y;
-    }
-  #else
-    // No need to send x if it has not changed (speeds things up)
-    if (addr_col != x) {
-      digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_CASET);
-      digitalWrite(TFT_DC, HIGH); spi.transfer(x>>8); spi.transfer(x&0xFF); spi.transfer(x>>8); spi.transfer(x&0xFF);
-      addr_col = x;
-    }
-
-    // No need to send y if it has not changed (speeds things up)
-    if (addr_row != y) {
-      digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_PASET);
-      digitalWrite(TFT_DC, HIGH); spi.transfer(y>>8); spi.transfer(y&0xFF); spi.transfer(y>>8); spi.transfer(y&0xFF);
-      addr_row = y;
-    }
-  #endif
-
-  digitalWrite(TFT_DC, LOW);  spi.transfer(TFT_RAMWR);
-
-  #if defined(TFT_PARALLEL_8_BIT) || defined(TFT_PARALLEL_16_BIT) || !defined(ESP32)
-    DC_D; tft_Write_16(color);
-  #else
-        digitalWrite(TFT_DC, HIGH); spi.transfer(color>>8); spi.transfer(color&0xFF);
-  #endif
-#endif
+  if (addr_row != y) {
+    digitalWrite(TFT_DC, LOW);
+    spi.transfer(TFT_PASET);
+    digitalWrite(TFT_DC, HIGH);
+    spi.transfer(y >> 8); spi.transfer(y & 0xFF);
+    spi.transfer(y >> 8); spi.transfer(y & 0xFF);
+    addr_row = y;
+  }
+  digitalWrite(TFT_DC, LOW);
+  spi.transfer(TFT_RAMWR);
+  digitalWrite(TFT_DC, HIGH);
+  spi.transfer(color >> 8);
+  spi.transfer(color & 0xFF);
 
   end_tft_write();
 }
