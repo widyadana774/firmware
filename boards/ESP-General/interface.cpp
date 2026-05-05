@@ -6,7 +6,7 @@
 ** Location: main.cpp
 ** Description:   initial setup for the device
 ***************************************************************************************/
-void _setup_gpio() { bruceConfig.startupApp = "WebUI"; }
+void _setup_gpio() {}
 
 /***************************************************************************************
 ** Function name: getBattery()
@@ -32,7 +32,20 @@ void _setBrightness(uint8_t brightval) {}
 ** Function: InputHandler
 ** Handles the variables PrevPress, NextPress, SelPress, AnyKeyPress and EscPress
 **********************************************************************/
-void InputHandler(void) {}
+void InputHandler(void) {
+#if defined(SEL_BTN) && SEL_BTN >= 0
+    if (digitalRead(SEL_BTN) == BTN_ACT) { SelPress = true; AnyKeyPress = true; }
+#endif
+#if defined(UP_BTN) && UP_BTN >= 0
+    if (digitalRead(UP_BTN) == BTN_ACT) { UpPress = true; PrevPress = true; AnyKeyPress = true; }
+#endif
+#if defined(DOWN_BTN) && DOWN_BTN >= 0
+    if (digitalRead(DOWN_BTN) == BTN_ACT) { DownPress = true; NextPress = true; AnyKeyPress = true; }
+#endif
+#if defined(BACK_BTN) && BACK_BTN >= 0
+    if (digitalRead(BACK_BTN) == BTN_ACT) { EscPress = true; AnyKeyPress = true; }
+#endif
+}
 
 /*********************************************************************
 ** Function: powerOff
