@@ -236,16 +236,12 @@ bool initRfModule(String mode, float frequency) {
                            .mosi) { // This board uses the same Bus for NRF and CC1101, but with
                                     // different CS pins, different from Stick_Cs down below..
 
-            CC_NRF_SPI.end(); // Closes in case it was already in use, it will overwrite the attempt
-                              // of SD start over to save configurations
-            delay(10);
-            if (!CC_NRF_SPI.begin(
-                    bruceConfigPins.CC1101_bus.sck,
-                    bruceConfigPins.CC1101_bus.miso,
-                    bruceConfigPins.CC1101_bus.mosi
-                )) {
-                Serial.println("Failed to start CC1101 SPI on NRF24 pins!");
-            }
+            CC_NRF_SPI.begin(
+            bruceConfigPins.CC1101_bus.sck,
+            bruceConfigPins.CC1101_bus.miso,
+            bruceConfigPins.CC1101_bus.mosi
+        );
+        Serial.println("CC1101 SPI started on NRF24 pins");
 
             initCC1101once(&CC_NRF_SPI);
         } else {
