@@ -209,7 +209,8 @@ JSValue native_httpFetch(JSContext *ctx, JSValue *this_val, int argc, JSValue *a
         }
     }
 
-    http.collectHeaders(true);
+    const char* allHeaders[] = {"Content-Type", "Content-Length", "Transfer-Encoding", "Location"};
+    http.collectHeaders(allHeaders, 4);
 
     // Send HTTP request
     // MEMO: Docs is wrong: sendRequest returns httpResponseCode not
