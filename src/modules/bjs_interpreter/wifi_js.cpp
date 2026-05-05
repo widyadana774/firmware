@@ -209,7 +209,7 @@ JSValue native_httpFetch(JSContext *ctx, JSValue *this_val, int argc, JSValue *a
         }
     }
 
-    http.collectAllHeaders(true);
+    http.collectHeaders(true);
 
     // Send HTTP request
     // MEMO: Docs is wrong: sendRequest returns httpResponseCode not
