@@ -31,11 +31,26 @@ jobs:
       - name: Build Firmware
         run: pio run -e esp32-s3-devkitc-1-psram
 
+      - name: Install esptool
+        run: pip install esptool
+
+      - name: Merge Firmware
+        run: |
+          esptool.py --chip esp32s3 merge_bin \
+            -o .pio/build/esp32-s3-devkitc-1-psram/merged_firmware.bin \
+            --flash_mode dio \
+            --flash_freq 80m \
+            --flash_size 16MB \
+            0x0 .pio/build/esp32-s3-devkitc-1-psram/bootloader.bin \
+            0x8000 .pio/build/esp32-s3-devkitc-1-psram/partitions.bin \
+            0x10000 .pio/build/esp32-s3-devkitc-1-psram/firmware.bin
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: bruce-firmware-s3
           path: |
+            .pio/build/esp32-s3-devkitc-1-psram/merged_firmware.bin
             .pio/build/esp32-s3-devkitc-1-psram/firmware.bin
             .pio/build/esp32-s3-devkitc-1-psram/bootloader.bin
             .pio/build/esp32-s3-devkitc-1-psram/partitions.bin
