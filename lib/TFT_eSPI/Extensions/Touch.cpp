@@ -22,14 +22,10 @@
 // The touch controller has a low SPI clock rate
 inline void TFT_eSPI::begin_touch_read_write(void){
   DMA_BUSY_CHECK;
-  CS_H; // Just in case it has been left low
-  #if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS)
-    if (locked) {locked = false; spi.beginTransaction(SPISettings(SPI_TOUCH_FREQUENCY, MSBFIRST, SPI_MODE0));}
-  #else
-    spi.setFrequency(SPI_TOUCH_FREQUENCY);
-  #endif
-  SET_BUS_READ_MODE;
-  T_CS_L;
+  digitalWrite(TFT_CS, HIGH); // CS_H
+  spi.beginTransaction(SPISettings(SPI_TOUCH_FREQUENCY, MSBFIRST, SPI_MODE0));
+  // SET_BUS_READ_MODE -- comment out
+  digitalWrite(TOUCH_CS, LOW); // T_CS_L
 }
 
 /***************************************************************************************
@@ -37,13 +33,9 @@ inline void TFT_eSPI::begin_touch_read_write(void){
 ** Description:             End transaction and deselect touch controller
 ***************************************************************************************/
 inline void TFT_eSPI::end_touch_read_write(void){
-  T_CS_H;
-  #if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS)
-    if(!inTransaction) {if (!locked) {locked = true; spi.endTransaction();}}
-  #else
-    spi.setFrequency(SPI_FREQUENCY);
-  #endif
-  //SET_BUS_WRITE_MODE;
+  digitalWrite(TOUCH_CS, HIGH); // T_CS_H
+  if(!inTransaction) {if (!locked) {locked = true; spi.endTransaction();}}
+  //SET_BUS_WRITE_MODE; -- tetap comment
 }
 
 /***************************************************************************************
