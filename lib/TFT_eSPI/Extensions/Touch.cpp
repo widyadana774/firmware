@@ -99,8 +99,8 @@ uint16_t TFT_eSPI::getTouchRawZ(void){
   // Z sample request
   int16_t tz = 0xFFF;
   spi.transfer(0xb0);               // Start new Z1 conversion
-  tz += spi.transfer16(0xc0) >> 3;  // Read Z1 and start Z2 conversion
-  tz -= spi.transfer16(0x00) >> 3;  // Read Z2
+  tz += ((spi.transfer(0xc0) << 8 | spi.transfer(0x00)) >> 3);
+  tz -= ((spi.transfer(0x00) << 8 | spi.transfer(0x00)) >> 3);
 
   end_touch_read_write();
 
