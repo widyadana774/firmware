@@ -113,7 +113,7 @@ void InputHandler(void) {
     }
 #endif
 
-#if defined(USE_TFT_eSPI_TOUCH) && defined(HAS_TOUCH)
+#if defined(HAS_TOUCH)
     uint16_t tx, ty;
     if (tft.getTouch(&tx, &ty)) {
         AnyKeyPress = true;
