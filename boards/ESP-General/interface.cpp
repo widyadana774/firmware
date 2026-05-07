@@ -52,6 +52,11 @@ void _setBrightness(uint8_t brightval) {}
 ** Handles the variables PrevPress, NextPress, SelPress, AnyKeyPress and EscPress
 **********************************************************************/
 void InputHandler(void) {
+  static bool _initialized = false;    // ← tambah baris 55
+  if (!_initialized) {                  // ← baris 56
+    delay(2000);                        // ← baris 57
+    _initialized = true;               // ← baris 58
+  }        
 #if defined(SEL_BTN) && SEL_BTN >= 0
     if (digitalRead(SEL_BTN) == BTN_ACT) {
         delay(50);
