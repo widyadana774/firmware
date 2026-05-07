@@ -115,7 +115,7 @@ void InputHandler(void) {
 
 #if defined(HAS_TOUCH)
     uint16_t tx, ty;
-    if (tft.getTouch(&tx, &ty)) {
+    if (tft.getTouch(&tx, &ty, 500)) {
         AnyKeyPress = true;
         // Map touch zones ke navigasi
         if (ty < tft.height() / 3) {
