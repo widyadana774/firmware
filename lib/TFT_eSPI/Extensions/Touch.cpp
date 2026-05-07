@@ -117,10 +117,13 @@ uint16_t TFT_eSPI::getTouchRawZ(void){
 uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   uint16_t x_tmp, y_tmp, x_tmp2, y_tmp2;
 
+  
   // Wait until pressure stops increasing to debounce pressure
+  // debounce_limit: safety cap biar loop ini tidak infinite jika sensor XPT2046 noise terus
   uint16_t z1 = 1;
   uint16_t z2 = 0;
-  while (z1 > z2)
+  uint8_t debounce_limit = 20;
+  while (z1 > z2 && debounce_limit--)
   {
     z2 = z1;
     z1 = getTouchRawZ();
