@@ -531,17 +531,14 @@ void loop() {
             Serial.println("Exiting interpreter...");
         }
         if (interpreter_state == -1) { interpreterTaskHandler = NULL; }
-        previousMillis = millis(); // ensure that will not dim screen when get back to menu
+        previousMillis = millis();
     }
 #endif
-    Serial.println("loop() called");        // ← tambah
+    Serial.println("loop() called");
     tft.fillScreen(bruceConfig.bgColor);
-    Serial.println("fillScreen done");      // ← tambah
+    Serial.println("fillScreen done");
     mainMenu.begin();
-    Serial.println("mainMenu.begin() done"); // ← tambah
-    delay(1);
-
-    mainMenu.begin();
+    Serial.println("mainMenu.begin() done");
     delay(1);
 }
 #else
