@@ -1,6 +1,7 @@
 #include "core/powerSave.h"
 #include <interface.h>
 
+extern bool _boot_done;
 /***************************************************************************************
 ** Function name: _setup_gpio()
 ** Location: main.cpp
@@ -119,27 +120,26 @@ void InputHandler(void) {
 #endif
 
 
-#if defined(HAS_TOUCH)   // DISABLED untuk isolasi crash getTouchRawZ StoreProhibited
-     uint16_t tx, ty;
-     if (tft.getTouch(&tx, &ty, 500)) {
-         AnyKeyPress = true;
-         // Map touch zones ke navigasi
-         if (ty < tft.height() / 3) {
-             PrevPress = true;  // Top zone = UP
-         } else if (ty > (tft.height() * 2 / 3)) {
-             NextPress = true;  // Bottom zone = DOWN
-         } else if (tx < tft.width() / 3) {
-             EscPress = true;   // Left zone = BACK
-         } else if (tx > (tft.width() * 2 / 3)) {
-             SelPress = true;   // Right zone = SELECT
-         } else {
-             SelPress = true;   // Center zone = SELECT
-         }
-         while (tft.getTouch(&tx, &ty)) delay(10); // tunggu release
-     }
- #endif
-}
-
+#if defined(HAS_TOUCH)
+    if (_boot_done) {          // ← tambah ini
+        uint16_t tx, ty;
+        if (tft.getTouch(&tx, &ty, 500)) {
+            AnyKeyPress = true;
+            if (ty < tft.height() / 3) {
+                PrevPress = true;
+            } else if (ty > (tft.height() * 2 / 3)) {
+                NextPress = true;
+            } else if (tx < tft.width() / 3) {
+                EscPress = true;
+            } else if (tx > (tft.width() * 2 / 3)) {
+                SelPress = true;
+            } else {
+                SelPress = true;
+            }
+            while (tft.getTouch(&tx, &ty)) delay(10);
+        }
+    }                          // ← tutup if (_boot_done)
+#endif
 /*********************************************************************
 ** Function: powerOff
 ** location: mykeyboard.cpp
