@@ -504,8 +504,12 @@ void setup() {
     startSerialCommandsHandlerTask(true);
 
     wakeUpScreen();
-    if (bruceConfig.startupApp != "" && !startupApp.startApp(bruceConfig.startupApp)) {
+        Serial.println("wakeUpScreen done");
+        Serial.println("startupApp: " + bruceConfig.startupApp);
+        if (bruceConfig.startupApp != "" && !startupApp.startApp(bruceConfig.startupApp)) {
         bruceConfig.setStartupApp("");
+    }
+        Serial.println("setup() DONE");
     }
 }
 
@@ -530,7 +534,12 @@ void loop() {
         previousMillis = millis(); // ensure that will not dim screen when get back to menu
     }
 #endif
+    Serial.println("loop() called");        // ← tambah
     tft.fillScreen(bruceConfig.bgColor);
+    Serial.println("fillScreen done");      // ← tambah
+    mainMenu.begin();
+    Serial.println("mainMenu.begin() done"); // ← tambah
+    delay(1);
 
     mainMenu.begin();
     delay(1);
