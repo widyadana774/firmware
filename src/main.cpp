@@ -14,6 +14,7 @@
 io_expander ioExpander;
 BruceConfig bruceConfig;
 BruceConfigPins bruceConfigPins;
+bool _boot_done = false;
 
 SerialCli serialCli;
 USBSerial USBserial;
@@ -484,6 +485,7 @@ void setup() {
     bruceConfig.openThemeFile(bruceConfig.themeFS(), bruceConfig.themePath, false);
     if (!bruceConfig.instantBoot) {
         boot_screen_anim();
+        _boot_done = true;  // ← tambah ini
         startup_sound();
     }
     if (bruceConfig.wifiAtStartup) {
