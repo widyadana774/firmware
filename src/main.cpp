@@ -510,7 +510,6 @@ void setup() {
         bruceConfig.setStartupApp("");
     }
         Serial.println("setup() DONE");
-    }
 }
 
 /**********************************************************************
