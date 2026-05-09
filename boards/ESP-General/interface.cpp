@@ -140,6 +140,7 @@ void InputHandler(void) {
         }
     }                          // ← tutup if (_boot_done)
 #endif
+}
 /*********************************************************************
 ** Function: powerOff
 ** location: mykeyboard.cpp
