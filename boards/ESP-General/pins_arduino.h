@@ -66,4 +66,15 @@ static const uint8_t T12 = 12;
 static const uint8_t T13 = 13;
 static const uint8_t T14 = 14;
 
+// TFT ILI9341
+#define ILI9341_DRIVER 1
+#define TFT_RST        17
+#define TFT_DC         16
+#define TFT_MISO       19
+#define TFT_MOSI       21
+#define TFT_SCLK       18
+#define TFT_CS         5
+#define TOUCH_CS       14
+#define HAS_TOUCH      1
+
 #endif /* Pins_Arduino_h */
