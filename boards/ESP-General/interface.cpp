@@ -53,87 +53,37 @@ void _setBrightness(uint8_t brightval) {}
 ** Handles the variables PrevPress, NextPress, SelPress, AnyKeyPress and EscPress
 **********************************************************************/
 void InputHandler(void) {
-#if defined(SEL_BTN) && SEL_BTN >= 0
-    if (digitalRead(SEL_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(SEL_BTN) == BTN_ACT) {
-            SelPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(SEL_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
-#if defined(UP_BTN) && UP_BTN >= 0
-    if (digitalRead(UP_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(UP_BTN) == BTN_ACT) {
-            PrevPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(UP_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
-#if defined(DOWN_BTN) && DOWN_BTN >= 0
-    if (digitalRead(DOWN_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(DOWN_BTN) == BTN_ACT) {
-            NextPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(DOWN_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
-#if defined(BACK_BTN) && BACK_BTN >= 0
-    if (digitalRead(BACK_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(BACK_BTN) == BTN_ACT) {
-            EscPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(BACK_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
-#if defined(LEFT_BTN) && LEFT_BTN >= 0
-    if (digitalRead(LEFT_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(LEFT_BTN) == BTN_ACT) {
-            PrevPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(LEFT_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
-#if defined(RIGHT_BTN) && RIGHT_BTN >= 0
-    if (digitalRead(RIGHT_BTN) == BTN_ACT) {
-        delay(50);
-        if (digitalRead(RIGHT_BTN) == BTN_ACT) {
-            NextPress = true;
-            AnyKeyPress = true;
-            while (digitalRead(RIGHT_BTN) == BTN_ACT) delay(10);
-        }
-    }
-#endif
+    static unsigned long tm = 0;
+    if (millis() - tm < 200 && !LongPress) return;
 
+    bool _u = (UP_BTN >= 0)    ? (digitalRead(UP_BTN) == BTN_ACT)    : false;
+    bool _d = (DOWN_BTN >= 0)  ? (digitalRead(DOWN_BTN) == BTN_ACT)  : false;
+    bool _l = (LEFT_BTN >= 0)  ? (digitalRead(LEFT_BTN) == BTN_ACT)  : false;
+    bool _r = (RIGHT_BTN >= 0) ? (digitalRead(RIGHT_BTN) == BTN_ACT) : false;
+    bool _s = (SEL_BTN >= 0)   ? (digitalRead(SEL_BTN) == BTN_ACT)   : false;
+    bool _b = (BACK_BTN >= 0)  ? (digitalRead(BACK_BTN) == BTN_ACT)  : false;
+
+    if (_u) { PrevPress = true; AnyKeyPress = true; }
+    if (_d) { NextPress = true; AnyKeyPress = true; }
+    if (_l) { PrevPress = true; AnyKeyPress = true; }
+    if (_r) { NextPress = true; AnyKeyPress = true; }
+    if (_s) { SelPress  = true; AnyKeyPress = true; }
+    if (_b) { EscPress  = true; AnyKeyPress = true; }
+
+    tm = millis();
 
 #if defined(HAS_TOUCH)
-    if (_boot_done) {          // ← tambah ini
+    if (_boot_done) {
         uint16_t tx, ty;
         if (tft.getTouch(&tx, &ty, 500)) {
             AnyKeyPress = true;
-            if (ty < tft.height() / 3) {
-                PrevPress = true;
-            } else if (ty > (tft.height() * 2 / 3)) {
-                NextPress = true;
-            } else if (tx < tft.width() / 3) {
-                EscPress = true;
-            } else if (tx > (tft.width() * 2 / 3)) {
-                SelPress = true;
-            } else {
-                SelPress = true;
-            }
+            if (ty < tft.height() / 3) { PrevPress = true; }
+            else if (ty > (tft.height() * 2 / 3)) { NextPress = true; }
+            else if (tx < tft.width() / 3) { EscPress = true; }
+            else { SelPress = true; }
             while (tft.getTouch(&tx, &ty)) delay(10);
         }
-    }                          // ← tutup if (_boot_done)
+    }
 #endif
 }
 /*********************************************************************
