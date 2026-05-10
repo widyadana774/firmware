@@ -56,12 +56,36 @@ void InputHandler(void) {
     static unsigned long tm = 0;
     if (millis() - tm < 200 && !LongPress) return;
 
+    #if defined(UP_BTN)
     bool _u = (UP_BTN >= 0)    ? (digitalRead(UP_BTN) == BTN_ACT)    : false;
+#else
+    bool _u = false;
+#endif
+#if defined(DOWN_BTN)
     bool _d = (DOWN_BTN >= 0)  ? (digitalRead(DOWN_BTN) == BTN_ACT)  : false;
+#else
+    bool _d = false;
+#endif
+#if defined(LEFT_BTN)
     bool _l = (LEFT_BTN >= 0)  ? (digitalRead(LEFT_BTN) == BTN_ACT)  : false;
+#else
+    bool _l = false;
+#endif
+#if defined(RIGHT_BTN)
     bool _r = (RIGHT_BTN >= 0) ? (digitalRead(RIGHT_BTN) == BTN_ACT) : false;
+#else
+    bool _r = false;
+#endif
+#if defined(SEL_BTN)
     bool _s = (SEL_BTN >= 0)   ? (digitalRead(SEL_BTN) == BTN_ACT)   : false;
+#else
+    bool _s = false;
+#endif
+#if defined(BACK_BTN)
     bool _b = (BACK_BTN >= 0)  ? (digitalRead(BACK_BTN) == BTN_ACT)  : false;
+#else
+    bool _b = false;
+#endif
 
     if (_u) { PrevPress = true; AnyKeyPress = true; }
     if (_d) { NextPress = true; AnyKeyPress = true; }
