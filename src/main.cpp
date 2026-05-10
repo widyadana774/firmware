@@ -445,7 +445,7 @@ void setup() {
 #else
     tft.begin();
 #endif
-    begin_storage();
+    // begin_storage();
     begin_tft();
     init_clock();
     init_led();
@@ -533,11 +533,12 @@ void loop() {
         previousMillis = millis();
     }
 #endif
-    Serial.println("loop() called");
+    tft.fillScreen(TFT_BLUE);
+    tft.setTextColor(TFT_WHITE, TFT_BLUE);
+    tft.drawCentreString("Loop OK", tft.width()/2, tft.height()/2, 2);
+    delay(3000);
     tft.fillScreen(bruceConfig.bgColor);
-    Serial.println("fillScreen done");
     mainMenu.begin();
-    Serial.println("mainMenu.begin() done");
     delay(1);
 }
 #else
