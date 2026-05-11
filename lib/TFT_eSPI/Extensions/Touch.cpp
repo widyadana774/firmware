@@ -263,19 +263,20 @@ void TFT_eSPI::calibrateTouch(uint16_t *parameters, uint32_t color_fg, uint32_t 
     if(i>0) delay(1000);
 
     for(uint8_t j= 0; j<8; j++){
-    // Use a lower detect threshold as corners tend to be less sensitive
-    uint32_t calibrateStart = millis();
-    while(!validTouch(&x_tmp, &y_tmp, Z_THRESHOLD/2)) {
-        if (millis() - calibrateStart > 10000) {
-            Serial.println("Touch calibration timeout!");
-            return;  // Gagal kalibrasi, keluar dari fungsi calibrateTouch
-        }
-        delay(10);
-    }
-    values[i*2  ] += x_tmp;
-    values[i*2+1] += y_tmp;
-}
-
+      for(uint8_t j= 0; j<8; j++){
+      // Use a lower detect threshold as corners tend to be less sensitive
+      uint32_t calibrateStart = millis();
+      while(!validTouch(&x_tmp, &y_tmp, Z_THRESHOLD/2)) {
+          if (millis() - calibrateStart > 10000) {
+              Serial.println("Touch calibration timeout!");
+              return;
+          }
+          delay(10);
+      }
+      values[i*2  ] += x_tmp;
+      values[i*2+1] += y_tmp;
+  }
+} // ← TAMBAH KURUNG INI untuk tutup for(uint8_t i = 0; i<4; i++)
 
   // from case 0 to case 1, the y value changed. 
   // If the measured delta of the touch x axis is bigger than the delta of the y axis, the touch and TFT axes are switched.
