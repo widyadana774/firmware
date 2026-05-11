@@ -263,14 +263,18 @@ void TFT_eSPI::calibrateTouch(uint16_t *parameters, uint32_t color_fg, uint32_t 
     if(i>0) delay(1000);
 
     for(uint8_t j= 0; j<8; j++){
-      // Use a lower detect threshold as corners tend to be less sensitive
-      while(!validTouch(&x_tmp, &y_tmp, Z_THRESHOLD/2));
-      values[i*2  ] += x_tmp;
-      values[i*2+1] += y_tmp;
-      }
-    values[i*2  ] /= 8;
-    values[i*2+1] /= 8;
-  }
+    // Use a lower detect threshold as corners tend to be less sensitive
+    uint32_t calibrateStart = millis();
+    while(!validTouch(&x_tmp, &y_tmp, Z_THRESHOLD/2)) {
+        if (millis() - calibrateStart > 10000) {
+            Serial.println("Touch calibration timeout!");
+            return;  // Gagal kalibrasi, keluar dari fungsi calibrateTouch
+        }
+        delay(10);
+    }
+    values[i*2  ] += x_tmp;
+    values[i*2+1] += y_tmp;
+}
 
 
   // from case 0 to case 1, the y value changed. 
