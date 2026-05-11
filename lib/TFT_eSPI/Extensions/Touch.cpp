@@ -115,46 +115,48 @@ uint16_t TFT_eSPI::getTouchRawZ(void){
 ***************************************************************************************/
 #define _RAWERR 20 // Deadband error allowed in successive position samples
 uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
-  uint16_t x_tmp, y_tmp, x_tmp2, y_tmp2;
-
-  
-  // Wait until pressure stops increasing to debounce pressure
-  // debounce_limit: safety cap biar loop ini tidak infinite jika sensor XPT2046 noise terus
-  uint16_t z1 = 1;
-  uint16_t z2 = 0;
-  uint8_t debounce_limit = 20;
-  while (z1 > z2 && debounce_limit--)
-  {
-    z2 = z1;
-    z1 = getTouchRawZ();
-    //delay(1);
-  }
-
-  //  Serial.print("Z = ");Serial.println(z1);
-
-  if (z1 <= threshold) return false;
+    uint16_t x_tmp, y_tmp, x_tmp2, y_tmp2;
     
-  getTouchRaw(&x_tmp,&y_tmp);
-
-  //  Serial.print("Sample 1 x,y = "); Serial.print(x_tmp);Serial.print(",");Serial.print(y_tmp);
-  //  Serial.print(", Z = ");Serial.println(z1);
-
-  //delay(1); // Small delay to the next sample
-  if (getTouchRawZ() <= threshold) return false;
-
-  //delay(2); // Small delay to the next sample
-  getTouchRaw(&x_tmp2,&y_tmp2);
-  
-  //  Serial.print("Sample 2 x,y = "); Serial.print(x_tmp2);Serial.print(",");Serial.println(y_tmp2);
-  //  Serial.print("Sample difference = ");Serial.print(abs(x_tmp - x_tmp2));Serial.print(",");Serial.println(abs(y_tmp - y_tmp2));
-
-  if (abs(x_tmp - x_tmp2) > _RAWERR) return false;
-  if (abs(y_tmp - y_tmp2) > _RAWERR) return false;
-  
-  *x = x_tmp;
-  *y = y_tmp;
-  
-  return true;
+    // TIMEOUT 150ms untuk seluruh proses
+    uint32_t start = millis();
+    
+    // Baca Z value pertama
+    uint16_t z1 = getTouchRawZ();
+    if (millis() - start > 150) return false;
+    
+    // Debounce: tunggu sampai pressure stabil (tidak naik lagi)
+    uint16_t z2 = z1;
+    uint8_t debounce_limit = 15;
+    while (debounce_limit--) {
+        delay(1);  // Beri waktu touch settle
+        z1 = getTouchRawZ();
+        if (millis() - start > 150) return false;
+        if (z1 <= z2) break;  // Pressure sudah stabil atau turun
+        z2 = z1;
+    }
+    
+    // Cek apakah touch benar-benar ditekan
+    if (z1 <= threshold) return false;
+    
+    // Baca koordinat pertama
+    getTouchRaw(&x_tmp, &y_tmp);
+    if (millis() - start > 150) return false;
+    
+    // Baca Z lagi untuk validasi (masih ditekan?)
+    if (getTouchRawZ() <= threshold) return false;
+    if (millis() - start > 150) return false;
+    
+    // Baca koordinat kedua
+    getTouchRaw(&x_tmp2, &y_tmp2);
+    if (millis() - start > 150) return false;
+    
+    // Validasi: dua sampel koordinat harus konsisten
+    if (abs(x_tmp - x_tmp2) > _RAWERR) return false;
+    if (abs(y_tmp - y_tmp2) > _RAWERR) return false;
+    
+    *x = x_tmp;
+    *y = y_tmp;
+    return true;
 }
   
 /***************************************************************************************
