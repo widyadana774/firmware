@@ -5901,7 +5901,13 @@ void TFT_eSPI::getSetup(setup_t &tft_settings)
   tft_settings.overlap = false;
 #endif
 
+  #ifdef TFT_DRIVER
   tft_settings.tft_driver = TFT_DRIVER;
+#elif defined(ILI9341_DRIVER)
+  tft_settings.tft_driver = 0x9341;
+#else
+  tft_settings.tft_driver = 0x0000;
+#endif
   tft_settings.tft_width  = _init_width;
   tft_settings.tft_height = _init_height;
 
