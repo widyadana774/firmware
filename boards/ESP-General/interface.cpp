@@ -8,26 +8,25 @@ extern bool _boot_done;
 ** Description:   initial setup for the device
 ***************************************************************************************/
 void _setup_gpio() {
-#if defined(SEL_BTN) && SEL_BTN >= 0
-    pinMode(SEL_BTN, INPUT_PULLUP);
-#endif
-#if defined(UP_BTN) && UP_BTN >= 0
-    pinMode(UP_BTN, INPUT_PULLUP);
-#endif
-#if defined(DOWN_BTN) && DOWN_BTN >= 0
-    pinMode(DOWN_BTN, INPUT_PULLUP);
-#endif
-#if defined(BACK_BTN) && BACK_BTN >= 0
-    pinMode(BACK_BTN, INPUT_PULLUP);
-#endif
-#if defined(LEFT_BTN) && LEFT_BTN >= 0
-    pinMode(LEFT_BTN, INPUT_PULLUP);
-#endif
-#if defined(RIGHT_BTN) && RIGHT_BTN >= 0
-    pinMode(RIGHT_BTN, INPUT_PULLUP);
-#endif
+    // #if defined(SEL_BTN) && SEL_BTN >= 0
+    //     pinMode(SEL_BTN, INPUT_PULLUP);
+    // #endif
+    // #if defined(UP_BTN) && UP_BTN >= 0
+    //     pinMode(UP_BTN, INPUT_PULLUP);
+    // #endif
+    // #if defined(DOWN_BTN) && DOWN_BTN >= 0
+    //     pinMode(DOWN_BTN, INPUT_PULLUP);
+    // #endif
+    // #if defined(BACK_BTN) && BACK_BTN >= 0
+    //     pinMode(BACK_BTN, INPUT_PULLUP);
+    // #endif
+    // #if defined(LEFT_BTN) && LEFT_BTN >= 0
+    //     pinMode(LEFT_BTN, INPUT_PULLUP);
+    // #endif
+    // #if defined(RIGHT_BTN) && RIGHT_BTN >= 0
+    //     pinMode(RIGHT_BTN, INPUT_PULLUP);
+    // #endif
 }
-
 /***************************************************************************************
 ** Function name: getBattery()
 ** location: display.cpp
