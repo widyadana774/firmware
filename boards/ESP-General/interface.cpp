@@ -96,7 +96,9 @@ void InputHandler(void) {
     tm = millis();
 
 #if defined(HAS_TOUCH)
-    if (_boot_done) {
+    static unsigned long _touch_start = 0;
+    if (_touch_start == 0) _touch_start = millis();
+    if (millis() - _touch_start > 10000) {
         uint16_t tx, ty;
         if (tft.getTouch(&tx, &ty, 500)) {
             AnyKeyPress = true;
