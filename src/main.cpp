@@ -537,6 +537,9 @@ void loop() {
     tft.setTextColor(TFT_WHITE, TFT_BLUE);
     tft.drawCentreString("Loop OK", tft.width()/2, tft.height()/2, 2);
     delay(3000);
+    tft.fillScreen(TFT_RED);
+    tft.drawCentreString("Before Menu", tft.width()/2, tft.height()/2, 2);
+    delay(1000);
     tft.fillScreen(bruceConfig.bgColor);
     mainMenu.begin();
     delay(1);
