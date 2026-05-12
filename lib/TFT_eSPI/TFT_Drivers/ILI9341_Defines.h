@@ -9,6 +9,12 @@
   #define TFT_HEIGHT 240
 #endif
 
+#if defined (ILI9341_DRIVER) || defined (ILI9341_2_DRIVER)
+  #define TFT_DRIVER 0x9341
+#elif defined (ILI9342_DRIVER)
+  #define TFT_DRIVER 0x9342
+#endif
+
 // Color definitions for backwards compatibility with old sketches
 // use colour definitions like TFT_BLACK to make sketches more portable
 #define ILI9341_BLACK       0x0000      /*   0,   0,   0 */
