@@ -96,19 +96,19 @@ void InputHandler(void) {
     tm = millis();
 
 #if defined(HAS_TOUCH)
-    static unsigned long _touch_start = 0;
-    if (_touch_start == 0) _touch_start = millis();
-    if (millis() - _touch_start > 10000) {
-        uint16_t tx, ty;
-        if (tft.getTouch(&tx, &ty, 500)) {
-            AnyKeyPress = true;
-            if (ty < tft.height() / 3) { PrevPress = true; }
-            else if (ty > (tft.height() * 2 / 3)) { NextPress = true; }
-            else if (tx < tft.width() / 3) { EscPress = true; }
-            else { SelPress = true; }
-            while (tft.getTouch(&tx, &ty)) delay(10);
-        }
-    }
+//     static unsigned long _touch_start = 0;
+//     if (_touch_start == 0) _touch_start = millis();
+//     if (millis() - _touch_start > 10000) {
+//         uint16_t tx, ty;
+//         if (tft.getTouch(&tx, &ty, 500)) {
+//             AnyKeyPress = true;
+//             if (ty < tft.height() / 3) { PrevPress = true; }
+//             else if (ty > (tft.height() * 2 / 3)) { NextPress = true; }
+//             else if (tx < tft.width() / 3) { EscPress = true; }
+//             else { SelPress = true; }
+//             while (tft.getTouch(&tx, &ty)) delay(10);
+//         }
+//     }
 #endif
 }
 /*********************************************************************
