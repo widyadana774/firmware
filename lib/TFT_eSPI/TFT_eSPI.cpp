@@ -39,30 +39,6 @@
   #define SPI_BUSY_CHECK
 #endif
 
-// Fallback defines kalau driver defines tidak ter-include
-#ifndef TFT_INVOFF
-  #define TFT_INVOFF  0x20
-#endif
-#ifndef TFT_INVON
-// ILI9341 command fallbacks
-#ifndef TFT_RAMWR
-  #define TFT_RAMWR   0x2C
-#endif
-#ifndef TFT_CASET
-  #define TFT_CASET   0x2A
-#endif
-#ifndef TFT_PASET
-  #define TFT_PASET   0x2B
-#endif
-#ifndef TFT_RAMRD
-  #define TFT_RAMRD   0x2E
-#endif
-#ifndef TFT_IDXRD
-  #define TFT_IDXRD   0xDD
-#endif
-  #define TFT_INVON   0x21
-#endif
-
 // Clipping macro for pushImage
 #define PI_CLIP                                        \
   if (_vpOoB) return;                                  \
