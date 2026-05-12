@@ -23,4 +23,4 @@
 #define SPI_TOUCH_FREQUENCY 2500000
 
 // Font halus
-#define SMOOTH_FONT
+#define SMOOTH_FONT 1
