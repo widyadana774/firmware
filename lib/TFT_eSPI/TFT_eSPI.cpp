@@ -37,6 +37,8 @@
 
 #ifndef SPI_BUSY_CHECK
   #define SPI_BUSY_CHECK
+#endif
+
 // Fallback defines kalau driver defines tidak ter-include
 #ifndef TFT_INVOFF
   #define TFT_INVOFF  0x20
