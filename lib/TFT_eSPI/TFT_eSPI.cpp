@@ -37,6 +37,12 @@
 
 #ifndef SPI_BUSY_CHECK
   #define SPI_BUSY_CHECK
+// Fallback defines kalau driver defines tidak ter-include
+#ifndef TFT_INVOFF
+  #define TFT_INVOFF  0x20
+#endif
+#ifndef TFT_INVON
+  #define TFT_INVON   0x21
 #endif
 
 // Clipping macro for pushImage
