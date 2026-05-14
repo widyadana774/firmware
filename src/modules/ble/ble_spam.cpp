@@ -327,12 +327,19 @@ void ibeacon(const char *DeviceName, const char *BEACON_UUID, int ManufacturerId
     padprintln("Press Any key to STOP.");
 
     while (!check(AnyKeyPress)) {
+        // Random MAC setiap iterasi
+        uint8_t newMac[6];
+        newMac[0] = 0xC2 | 0x02; // locally administered, random
+        for (int i = 1; i < 6; i++) newMac[i] = esp_random() & 0xFF;
+        esp_base_mac_addr_set(newMac);
+
         pAdvertising->start();
         Serial.println("Advertizing started...");
         vTaskDelay(20 / portTICK_PERIOD_MS);
         pAdvertising->stop();
         vTaskDelay(5 / portTICK_PERIOD_MS);
         Serial.println("Advertizing stop");
+}
     }
 
 #if defined(CONFIG_IDF_TARGET_ESP32C5)
